@@ -8,7 +8,6 @@ import (
 )
 
 func CorsSetup(router *gin.Engine) {
-	// allow swagger UI requests
 	router.Use(cors.New(cors.Config{
 		AllowAllOrigins: false,
 		AllowOrigins:    []string{os.Getenv("FRONTEND_URL")},

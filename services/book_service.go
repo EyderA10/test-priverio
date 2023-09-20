@@ -19,8 +19,6 @@ type BookService struct {
 	collection *mongo.Collection
 }
 
-// TODO: al enviarlo no valida correctamente lo que llega por requestBody
-
 func NewBookService(db *utils.Database, dbName string, col string) *BookService {
 	return &BookService{
 		db:         db,
@@ -71,7 +69,7 @@ func (bs *BookService) GetBookByID(id string) (*models.Book, error) {
 	var book models.Book
 	objectID, errParse := primitive.ObjectIDFromHex(id)
 	if errParse != nil {
-		return nil, errParse // Manejar el error de conversión
+		return nil, errParse
 	}
 	filter := bson.M{"_id": objectID}
 	err := bs.collection.FindOne(context.TODO(), filter).Decode(&book)
@@ -118,7 +116,7 @@ func (bs *BookService) UpdateBook(id string, updatedBook models.Book) (int, erro
 func (bs *BookService) DeleteBook(id string) (bool, error) {
 	objectID, errParse := primitive.ObjectIDFromHex(id)
 	if errParse != nil {
-		return false, errParse // Manejar el error de conversión
+		return false, errParse
 	}
 	filter := bson.M{"_id": objectID}
 	result, err := bs.collection.DeleteOne(context.TODO(), filter)

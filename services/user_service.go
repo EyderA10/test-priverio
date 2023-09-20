@@ -46,7 +46,6 @@ func (us *UserService) SignUp(ctx *gin.Context) (models.User, error) {
 	if err != nil {
 		return user, err
 	}
-	// TODO: implemente goroutine to the save avatar image
 
 	user.ID = primitive.NewObjectID()
 	user.CreatedAt = time.Now()

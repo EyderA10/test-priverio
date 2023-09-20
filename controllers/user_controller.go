@@ -13,7 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: al enviarlo no valida correctamente lo que llega por requestBody
 func SignUp(ctx *gin.Context) {
 	// get the database
 	db := ctx.MustGet("db").(*utils.Database)
