@@ -95,7 +95,7 @@ func (us *UserService) LogIn(ctx *gin.Context) (models.JWTOutput, error) {
 
 func (us *UserService) GenerateJWT(user models.User) (models.JWTOutput, error) {
 	// expiration time by token
-	expirationTime := time.Now().Add(10 * time.Minute)
+	expirationTime := time.Now().Add(60 * time.Minute)
 
 	// claims to the generate token
 	claims := &models.Claims{

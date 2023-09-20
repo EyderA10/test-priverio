@@ -34,7 +34,7 @@ func SignUp(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, gin.H{
 		"message": "User registered successfully",
 		"data":    user,
-		"token":   token,
+		"auth":    token,
 	})
 }
 
@@ -50,6 +50,6 @@ func LogIn(ctx *gin.Context) {
 	}
 	// User registration successful
 	ctx.IndentedJSON(http.StatusOK, gin.H{
-		"token": token,
+		"auth": token,
 	})
 }
