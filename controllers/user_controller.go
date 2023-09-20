@@ -39,6 +39,17 @@ func SignUp(ctx *gin.Context) {
 }
 
 func LogIn(ctx *gin.Context) {
-	// implement Login from UserService
-	// userService := services.NewUserService()
+	// get the database
+	db := ctx.MustGet("db").(*utils.Database)
+	// import UserService to instance and then use the LogIn method
+	userService := services.NewUserService(db, db.GetName(), "users")
+	token, errJWT := userService.LogIn(ctx)
+	if errJWT != nil {
+		handler.HandleJWTError(ctx, errJWT)
+		return
+	}
+	// User registration successful
+	ctx.IndentedJSON(http.StatusOK, gin.H{
+		"token": token,
+	})
 }

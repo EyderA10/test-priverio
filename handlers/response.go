@@ -16,8 +16,8 @@ func HandleRegistrationError(ctx *gin.Context, err error) {
 }
 
 func HandleJWTError(ctx *gin.Context, err error) {
-	ctx.IndentedJSON(http.StatusInternalServerError, gin.H{
-		"error": "JWT token generation failed",
+	ctx.IndentedJSON(http.StatusBadRequest, gin.H{
+		"error": "token generation failed, send email or password correct",
 	})
 	log.Print(fmt.Errorf("could not generate JWT token: %s", err.Error()))
 }

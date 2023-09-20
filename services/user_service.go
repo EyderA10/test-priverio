@@ -61,11 +61,14 @@ func (us *UserService) SignUp(ctx *gin.Context) (models.User, error) {
 	return user, nil
 }
 
-func (us *UserService) LogIn(email string, password string) (models.JWTOutput, error) {
+func (us *UserService) LogIn(ctx *gin.Context) (models.JWTOutput, error) {
+	var user models.User
 	var foundUser models.User
-
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		return models.JWTOutput{}, err
+	}
 	// Verify email
-	err := us.collection.FindOne(context.TODO(), bson.M{"email": email}).Decode(&foundUser)
+	err := us.collection.FindOne(context.TODO(), bson.M{"email": user.Email}).Decode(&foundUser)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			// User with the provided email not found
@@ -75,7 +78,7 @@ func (us *UserService) LogIn(email string, password string) (models.JWTOutput, e
 	}
 
 	// Verify password
-	passwordIsValid := verifyPassword(password, foundUser.Password)
+	passwordIsValid := verifyPassword(user.Password, foundUser.Password)
 	if !passwordIsValid {
 		// Incorrect password
 		return models.JWTOutput{}, fmt.Errorf("incorrect password")

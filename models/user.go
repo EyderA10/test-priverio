@@ -15,6 +15,6 @@ type User struct {
 	Password  string             `json:"password" bson:"password" validate:"required,min=8"`
 	Avatar    []byte             `json:"avatar" bson:"avatar"`
 	Roles     []string           `json:"roles" bson:"roles"`
-	Address   string             `json:"address" bson:"address" validate:"required"`
+	Address   string             `json:"address" bson:"address"`
 	CreatedAt time.Time          `json:"created_at" bson:"createdAt"`
 }
