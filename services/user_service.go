@@ -93,6 +93,32 @@ func (us *UserService) LogIn(ctx *gin.Context) (models.JWTOutput, error) {
 	return token, nil
 }
 
+// update user role by id
+func (us *UserService) UpdateRoleUser(id string, userUpdated models.User) (int, error) {
+	objectID, errParse := primitive.ObjectIDFromHex(id)
+	if errParse != nil {
+		return 0, errParse
+	}
+
+	filter := bson.M{"_id": objectID}
+	update := bson.D{{
+		Key: "$set", Value: bson.D{
+			{Key: "roles", Value: userUpdated.Roles},
+		},
+	}}
+	result, err := us.collection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return 0, fmt.Errorf("could not update user role: %w", err)
+	}
+
+	// to make sure it was modified the document
+	if result.ModifiedCount == 0 {
+		return 0, fmt.Errorf("user not found or not updated")
+	}
+
+	return int(result.ModifiedCount), nil
+}
+
 func (us *UserService) GenerateJWT(user models.User) (models.JWTOutput, error) {
 	// expiration time by token
 	expirationTime := time.Now().Add(60 * time.Minute)
@@ -100,6 +126,7 @@ func (us *UserService) GenerateJWT(user models.User) (models.JWTOutput, error) {
 	// claims to the generate token
 	claims := &models.Claims{
 		Username: user.Username,
+		Roles:    user.Roles,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},

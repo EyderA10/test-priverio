@@ -9,38 +9,57 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// verify the token validation
-func MiddlewareJWT() gin.HandlerFunc {
+func AuthMiddleware(roles ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// get the token by Authorization header
-		tokenString := ctx.Request.Header.Get("Authorization")
-
-		// verify Token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			// verify the sign method is correct
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("sign method not valid")
-			}
-
-			// return the secret key that was used to get the token
-			return []byte(os.Getenv("SECRET_KEY")), nil
-		})
-
-		if err != nil {
-			// invalid token returns status code 401 Unauthorized
-			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token"})
-			ctx.Abort() // stop the execution from request
+		// verify auth of user by token
+		userRole := getUserRoleFromToken(ctx) // get user role
+		fmt.Println(userRole)
+		// verify if user have the role correct
+		if !hasRequiredRole(userRole, roles) {
+			ctx.IndentedJSON(http.StatusForbidden, gin.H{"error": "Unauthorized access"})
+			ctx.Abort()
 			return
 		}
 
-		// get claims by token valid
-		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			fmt.Println(claims)
-			ctx.Next()
-		} else {
-			// invalid token returns status code 401 Unauthorized
-			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token"})
-			ctx.Abort()
+		ctx.Next()
+	}
+}
+
+// get user by token
+func getUserRoleFromToken(ctx *gin.Context) string {
+	// get token by authorization header
+	tokenString := ctx.Request.Header.Get("Authorization")
+	// parse token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("SECRET_KEY")), nil
+	})
+
+	if err != nil {
+		return "ROLE_USER"
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		// get the roles from the user by claims from token
+		if roles, ok := claims["roles"].([]interface{}); ok {
+			roleString := ""
+			for i, role := range roles {
+				if i > 0 {
+					roleString += ","
+				}
+				roleString += role.(string)
+			}
+			return roleString
 		}
 	}
+	return "ROLE_USER"
+}
+
+func hasRequiredRole(userRole string, requiredRoles []string) bool {
+	for _, role := range requiredRoles {
+
+		if role == userRole {
+			return true
+		}
+	}
+	return false
 }

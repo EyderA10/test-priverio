@@ -84,7 +84,7 @@ func (bs *BookService) GetBookByID(id string) (*models.Book, error) {
 	return &book, nil
 }
 
-// update book by id and return true or false and some error
+// update book by id and return modified counts
 func (bs *BookService) UpdateBook(id string, updatedBook models.Book) (int, error) {
 	objectID, errParse := primitive.ObjectIDFromHex(id)
 	if errParse != nil {

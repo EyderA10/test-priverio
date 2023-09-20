@@ -2,6 +2,7 @@ package routes
 
 import (
 	"technical-test/priverion/controllers"
+	handler "technical-test/priverion/handlers"
 	"technical-test/priverion/middleware"
 	"technical-test/priverion/utils"
 
@@ -11,6 +12,8 @@ import (
 func SetupRouter(db *utils.Database) *gin.Engine {
 	router := gin.Default()
 
+	// handler of cors to the api
+	handler.CorsSetup(router)
 	// middleware of database to use it global for the controllers
 	router.Use(middleware.DatabaseMiddleware(db))
 
@@ -20,6 +23,7 @@ func SetupRouter(db *utils.Database) *gin.Engine {
 	{
 		userRoutes.POST("/signUp", controllers.SignUp)
 		userRoutes.POST("/logIn", controllers.LogIn)
+		userRoutes.PUT("/updateRole/:id", middleware.AuthMiddleware("ROLE_ADMIN"), controllers.UpdateRoleUser)
 	}
 
 	bookRoutes := api.Group("/books")
@@ -33,6 +37,5 @@ func SetupRouter(db *utils.Database) *gin.Engine {
 		bookRoutes.DELETE("/deleteBook/:id", controllers.DeleteBook)
 	}
 
-	// TODO: implement cors
 	return router
 }

@@ -1,8 +1,12 @@
 package controllers
 
 import (
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 	handler "technical-test/priverion/handlers"
+	"technical-test/priverion/models"
 	"technical-test/priverion/services"
 	"technical-test/priverion/utils"
 
@@ -51,5 +55,32 @@ func LogIn(ctx *gin.Context) {
 	// User registration successful
 	ctx.IndentedJSON(http.StatusOK, gin.H{
 		"auth": token,
+	})
+}
+
+func UpdateRoleUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+	db := ctx.MustGet("db").(*utils.Database)
+	userService := services.NewUserService(db, os.Getenv("DATABASE_NAME"), "users")
+	var updatedUser models.User
+
+	// bind json to the updatedBook
+	if err := ctx.ShouldBindJSON(&updatedUser); err != nil {
+		log.Print(fmt.Errorf("could not bind JSON: %w", err))
+		return
+	}
+	modifiedCount, err := userService.UpdateRoleUser(id, updatedUser)
+	if err != nil {
+		log.Printf("Error updating user role: %v", err)
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Failed to update user role"})
+		return
+	}
+
+	if modifiedCount == 0 {
+		ctx.IndentedJSON(http.StatusNotFound, gin.H{"message": "User not found or not updated"})
+		return
+	}
+	ctx.IndentedJSON(http.StatusCreated, gin.H{
+		"message": "Role Updated Succesfully!",
 	})
 }
