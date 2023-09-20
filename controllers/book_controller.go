@@ -85,7 +85,7 @@ func UpdateBook(ctx *gin.Context) {
 	}
 	ctx.IndentedJSON(http.StatusCreated, gin.H{
 		"message": "Book Updated Succesfully!",
-		"data":    modifiedCount,
+		"data":    updatedBook,
 	})
 }
 
