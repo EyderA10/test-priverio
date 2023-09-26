@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 
@@ -13,7 +12,6 @@ func AuthMiddleware(roles ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// verify auth of user by token
 		userRole := getUserRoleFromToken(ctx) // get user role
-		fmt.Println(userRole)
 		// verify if user have the role correct
 		if !hasRequiredRole(userRole, roles) {
 			ctx.IndentedJSON(http.StatusForbidden, gin.H{"error": "Unauthorized access"})

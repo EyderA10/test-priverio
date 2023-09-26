@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"technical-test/priverion/models"
 	"technical-test/priverion/utils"
@@ -13,12 +12,13 @@ import (
 // manage the validation of auth user and books
 func SignUpValidation(ctx *gin.Context, user *models.User) error {
 	// get errors
-	fmt.Println(*user)
-	// validation of fields
 	validate := utils.ValidatorFields()
 	err := validate.Struct(*user)
+	if err == nil {
+		return nil
+	}
+	// validation of fields
 	validationErrors := err.(validator.ValidationErrors)
-
 	// create a list to save all errorsFields
 	var errorFields []utils.FieldsMessage
 	for _, fieldError := range validationErrors {
