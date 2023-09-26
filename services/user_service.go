@@ -32,7 +32,11 @@ func NewUserService(db *utils.Database, dbName string, col string) *UserService 
 func (us *UserService) SignUp(ctx *gin.Context) (models.User, error) {
 	var user models.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-		return user, handler.SignUpValidation(ctx, user, err)
+		return user, err
+	}
+	// validation of user fields
+	if errFields := handler.SignUpValidation(ctx, &user); errFields != nil {
+		return user, errFields
 	}
 	// verify if the email already exist in the database
 	res := us.collection.FindOne(context.TODO(), bson.M{"email": user.Email})
@@ -51,7 +55,7 @@ func (us *UserService) SignUp(ctx *gin.Context) (models.User, error) {
 	user.CreatedAt = time.Now()
 	user.Password = paswordHashed
 
-	//save user to the database
+	// save user to the database
 	_, err = us.collection.InsertOne(context.TODO(), user)
 	if err != nil {
 		return user, err
